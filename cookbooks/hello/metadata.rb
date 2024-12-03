@@ -1,0 +1,7 @@
+name 'sample-1'
+maintainer 'Progress Software, Inc'
+maintainer_email 'maintainers@chef.io'
+license 'All Rights Reserved'
+description 'A simple cookbook'
+version '0.1.0'
+chef_version '>= 19.0'

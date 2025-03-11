@@ -16,7 +16,7 @@ end
 
 apt_repository 'habitat' do
   uri 'https://bldr.habitat.sh/latest/debian/'
-  components ['stable', 'main']
+  components %w(stable main)
   distribution 'stable'
   key 'https://bldr.habitat.sh/gpg.pub'
   action :add
@@ -131,8 +131,8 @@ habitat_sup 'default' do
   # Set the configuration options (adjust as needed)
   config do
     {
-      'peer' => 'default',       # Example configuration option
-      'listen' => '0.0.0.0:9631' # Example configuration option
+      'peer' => 'default', # Example configuration option
+      'listen' => '0.0.0.0:9631', # Example configuration option
     }
   end
 end
@@ -146,9 +146,9 @@ http_request 'fetch_posts' do
   url 'https://jsonplaceholder.typicode.com/posts'
   action :get
   headers({
-    'Accept' => 'application/json'
+    'Accept' => 'application/json',
   })
-  not_if { ::File.exist?('/tmp/posts_fetched') }  # Only run if the file doesn't already exist
+  not_if { ::File.exist?('/tmp/posts_fetched') } # Only run if the file doesn't already exist
 end
 
 # Execute a command to create a file after fetching posts
@@ -165,11 +165,11 @@ http_request 'create_post' do
   message({
     title: 'foo',
     body: 'bar',
-    userId: 1
+    userId: 1,
   }.to_json)
   headers({
     'Content-Type' => 'application/json',
-    'Accept' => 'application/json'
+    'Accept' => 'application/json',
   })
 end
 
@@ -187,6 +187,7 @@ s_links = ['/usr/sbin/lsmod', '/usr/sbin/rmmod', '/usr/sbin/insmod', '/usr/sbin/
 s_links.each do |files|
   link files.to_s do
     to '../bin/kmod'
+  end
 end
 
 log 'Testign Log Resources....!!!'
@@ -205,7 +206,7 @@ ohai 'reload' do
 end
 
 ohai_hint 'ec2' do
- action :create
+  action :create
 end
 
 file '/etc/crontab' do
@@ -273,7 +274,7 @@ yum_repository 'rhel-repo' do
   reposdir '/tmp/'
   action :create
   make_cache false
- end
+end
 
 user 'cbtest' do
   comment 'system guy'
@@ -337,31 +338,33 @@ ssh_known_hosts_entry 'gitlab.com' do
   action :create
 end
 
-rhsm_register 'register_with_rhsm' do
-  username 'chnadraredhat'
-  password 'Dev@progress123'
-  auto_attach true
-  action :register
-end
+if plateform_family?('rhel')
+  rhsm_register 'register_with_rhsm' do
+    username 'username' # Replace with your Red Hat username
+    password 'Password' # Replace with your Red Hat password
+    auto_attach true
+    action :register
+  end
 
-rhsm_subscription 'attach_subscription' do
-  pool_id '2c94582e918fd1090191db3a9e083436'
-  action :attach
-end
+  rhsm_subscription 'attach_subscription' do
+    pool_id 'pool_id' # Replace with your subscription pool ID
+    action :attach
+  end
 
-rhsm_repo 'rhel-9-server-rpms' do
-  repo_name 'rhel-atomic-7-cdk-3.11-rpms'
-  action :enable
-end
+  rhsm_repo 'rhel-9-server-rpms' do
+    repo_name 'rhel-atomic-7-cdk-3.11-rpms'
+    action :enable
+  end
 
-rhsm_errata 'apply_rhsa' do
-  errata_id 'RHSA-2014:1293'
-  action :install
-end
+  rhsm_errata 'apply_rhsa' do
+    errata_id 'RHSA-2014:1293'
+    action :install
+  end
 
-rhsm_errata_level 'RHSA-2014' do
-  errata_level 'moderate'
-  action :install
+  rhsm_errata_level 'RHSA-2014' do
+    errata_level 'moderate'
+    action :install
+  end
 end
 
 swap_file '/swapfile' do
@@ -403,7 +406,7 @@ locale 'set system locale' do
 end
 
 chef_acl '*/*' do
-  rights :all, :users => 'root'
+  rights :all, users: 'root'
   recursive true
   action :create
 end
@@ -415,7 +418,7 @@ script 'run_custom_script' do
 end
 
 subversion 'checkout_project_code' do
-  repository "https://github.com/torvalds/linux.git"
+  repository 'https://github.com/torvalds/linux.git'
   destination '/tmp/project'
   revision 'HEAD' # Check out revision 1234
   svn_info_args 'false'
@@ -428,9 +431,9 @@ yum_package 'httpd' do
 end
 
 yum_repository 'rhel-repo' do
-   reposdir '/tmp/'
-   action :create
-   make_cache false
+  reposdir '/tmp/'
+  action :create
+  make_cache false
 end
 
 snap_package 'node' do
@@ -441,7 +444,7 @@ end
 
 rpm_package 'Install crond' do
   package_name 'nginx'
-  source '/tmp/nginx-1.20.2-1.el9.ngx.x86_64.rpm'
+  source '/tmp/nginx-1.20.2-1.el9.ngx.x86_64.rpm' # Path to the RPM file on the local machine
   action :install
 end
 
@@ -463,16 +466,16 @@ end
 chef_data_bag 'data_bag' do
   action :create
 end
- 
+
 chef_data_bag_item 'data_bag/id' do
   raw_data({
-    "feature" => true
+    'feature' => true,
   })
 end
 
 chef_environment 'dev' do
   description 'Dev Environment'
-  default_attributes({ "dev" => 1 })
+  default_attributes({ 'dev' => 1 })
 end
 
 cookbook_file '/tmp/chef-repo/config.conf' do
@@ -490,7 +493,7 @@ habitat_package 'core/httpd' do
 end
 
 habitat_service 'core/httpd' do
-  action :unload  # Stops and unloads the service
+  action :unload # Stops and unloads the service
 end
 
 alternatives 'python' do
@@ -519,13 +522,13 @@ chef_role 'webserver' do
   description 'Role for web servers'
   default_attributes(
     'apache' => {
-      'port' => 80
+      'port' => 80,
     }
   )
   env_run_lists(
     'default' => [
       'role[base]',
-      'recipe[apache]'
+      'recipe[apache]',
     ]
   )
   ignore_failure true
@@ -533,11 +536,11 @@ chef_role 'webserver' do
 end
 
 chef_client 'example-client' do
-  admin true  # Optional: Make this client an API client
-  complete true  # Optional: Define the client completely
-  ignore_failure false  # Optional: Do not ignore failure by default
-  source_key_path '/home/ubuntu/mohan.pub'  # Path to the public key
-  action :create  # Default action, creates a client
+  admin true # Optional: Make this client an API client
+  complete true # Optional: Define the client completely
+  ignore_failure false # Optional: Do not ignore failure by default
+  source_key_path '/home/ubuntu/mohan.pub' # Path to the public key
+  action :create # Default action, creates a client
 end
 
 # Step 1: Install Habitat
@@ -549,12 +552,12 @@ end
 # Start the Habitat Supervisor if it's not running
 execute 'start_habitat_supervisor' do
   command 'hab sup run'
-  user 'root'  # Make sure to run as root or as an appropriate user with permissions to start services
+  user 'root' # Make sure to run as root or as an appropriate user with permissions to start services
   environment({
-    'PATH' => '/usr/local/bin:/usr/bin:/bin'  # Set the PATH environment variable, if needed
+    'PATH' => '/usr/local/bin:/usr/bin:/bin', # Set the PATH environment variable, if needed
   })
   action :run
-  not_if 'pgrep -f hab-sup'  # Prevent running the command if a Habitat Supervisor is already running
+  not_if 'pgrep -f hab-sup' # Prevent running the command if a Habitat Supervisor is already running
 end
 
 # Now apply the habitat config
@@ -562,13 +565,12 @@ habitat_config 'core.httpd' do
   config({
     worker_count: 4,
     http: {
-      keepalive_timeout: 120
-    }
+      keepalive_timeout: 120,
+    },
   })
-  remote_sup '127.0.0.1:9632'  # Ensure the supervisor address is correct
+  remote_sup '127.0.0.1:9632' # Ensure the supervisor address is correct
   action :apply
 end
-
 
 # Setting node attributes for a Chef run
 node.override['example_attribute'] = 'example_value'
@@ -594,7 +596,7 @@ end
 # Add the input to InSpec
 inspec_input 'example_input' do
   input 'key1=value1,key2=value2'
-  source '/home/ubuntu/my_input_source.yaml'  # Path to the YAML file
+  source '/home/ubuntu/my_input_source.yaml' # Path to the YAML file
   action :nothing # It will be triggered by the file resource
 end
 
@@ -635,7 +637,7 @@ python 'hello_world' do
     print("Hello, world! From Chef and Python.")
   EOH
   action :run
-  interpreter 'python3'  # Specify python3 interpreter
+  interpreter 'python3' # Specify python3 interpreter
 end
 
 freebsd_package 'curl' do
